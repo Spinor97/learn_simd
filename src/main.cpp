@@ -5,7 +5,7 @@
 #include "ord_parser.hpp"
 
 int main() {
-    const char* msg = "AAPL,150.25,100\n";
+    const char* msg = "AAPLCDEFGHAB,15.0000000000000000000025,1000000000000000000000000000000000\n";
     size_t len = strlen(msg);
     const size_t num_iterations = 1000000;
 
