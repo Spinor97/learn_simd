@@ -26,9 +26,9 @@ namespace ColType {
 
         ~baseType() = default;
 
-        void add(const char *ptr, size_t len) noexcept {
+        void add(const char *ptr, size_t len) noexcept override {
             if (len == 0) {
-                data.push_back(0);
+                data.push_back(T{});
                 push_null(true);
                 return;
             }
@@ -48,7 +48,7 @@ namespace ColType {
             size_t idx = cnt >> 6, bit = cnt & 63;
 
             if (idx >= null.size()) {
-                null.push_back(T{});
+                null.push_back(0);
             }
 
             if (isNull) {
@@ -58,7 +58,7 @@ namespace ColType {
             ++cnt;
         }
 
-        size_t size() const noexcept {
+        size_t size() const noexcept override {
             return data.size();
         }
     };
@@ -69,7 +69,7 @@ namespace ColType {
         std::vector<uint64_t> null;
         size_t cnt = 0;
 
-        void add(const char *ptr, size_t len) noexcept {
+        void add(const char *ptr, size_t len) noexcept override {
             if (len == 0) {
                 data.emplace_back();
                 push_null(true);
@@ -94,7 +94,7 @@ namespace ColType {
             ++cnt;
         }
 
-        size_t size() const noexcept {
+        size_t size() const noexcept override {
             return data.size();
         }
     };
