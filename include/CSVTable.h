@@ -11,14 +11,14 @@ struct CSVTable {
     // std::vector<size_t> col_stt;
     // std::vector<size_t> col_end;
 
-    std::vector<std::unique_ptr<ColType::baseType>> columns;
+    std::vector<std::unique_ptr<ColType::IColumn>> columns;
     size_t row_cnt = 0;
 
     size_t getRow() const {
         return row_cnt;
     }
 
-    size_t getCol(size_t r) const {
+    size_t getCol(size_t r = 0) const {
         // size_t stt = row[r];
         // size_t ed = (r + 1 < getRow())
         //     ? row[r + 1]

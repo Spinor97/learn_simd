@@ -17,7 +17,7 @@ public:
         init_col();
     }
 
-    CSVTable build() noexcept {
+    CSVTable build() {
         parse();
         return std::move(table);
     }
@@ -34,7 +34,7 @@ private:
             switch (type) {
                 case colType::Int64: {
                     auto col =
-                        std::make_unique<ColType::intType>();
+                        std::make_unique<ColType::baseType<int64_t>>();
                     col->data.reserve(expected_rows);
                     table.columns.push_back(std::move(col));
                     break;
@@ -42,7 +42,7 @@ private:
 
                 case colType::Double: {
                     auto col =
-                        std::make_unique<ColType::doubleType>();
+                        std::make_unique<ColType::baseType<double>>();
                     col->data.reserve(expected_rows);
                     table.columns.push_back(std::move(col));
                     break;
@@ -50,7 +50,7 @@ private:
 
                 case colType::String: {
                     auto col =
-                        std::make_unique<ColType::stringType>();
+                        std::make_unique<ColType::baseType<std::string_view>>();
                     col->data.reserve(expected_rows);
                     table.columns.push_back(std::move(col));
                     break;
@@ -120,30 +120,26 @@ private:
     inline void process_mask(uint32_t commas, uint32_t newlines, size_t base,
                          size_t& field_start,
                          size_t& current_column) {
-        while (commas) {
-            int bit = __builtin_ctz(commas);
+        uint32_t delim = commas | newlines;
+
+        while (delim) {
+            int bit = __builtin_ctz(delim);
             size_t pos = base + bit;
 
-            add_field(field_start, pos, current_column);
-            field_start = pos + 1;
-
-            commas &= commas - 1;
-        }
-
-        while (newlines) {
-            int bit = __builtin_ctz(newlines);
-            size_t pos = base + bit;
+            bool isNewL = (newlines >> bit) & 1;
 
             add_field(field_start, pos, current_column);
 
-            if (current_column != table.columns.size())
-                throw std::runtime_error("Column mismatch");
-
-            current_column = 0;
-            ++table.row_cnt;
+            if (isNewL) {
+                if (current_column != table.columns.size()) {
+                    throw std::runtime_error("Mismatch col nums");
+                }
+                current_column = 0;
+                ++table.row_cnt;
+            }
 
             field_start = pos + 1;
-            newlines &= newlines - 1;
+            delim &= (delim - 1);
         }
     }
 
